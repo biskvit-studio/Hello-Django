@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello</title>
+  <link rel="stylesheet" href="{% static 'landing/css/style.css' %}" />
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Noise / grain overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- WebGL canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="loader-counter" id="loaderCounter">0</div>
+    <div class="loader-bar-wrap">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+  </div>
+
+  <!-- Scroll hint (fixed) -->
+  <div class="scroll-hint" id="scrollHint">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+
+  <!-- ========================
+       MAIN CONTENT
+       ======================== -->
+  <main class="scene" id="scene">
+
+    <!-- ① HERO ————————————————————————— -->
+    <section class="hero" id="hero">
+      <div class="hello-wrap" id="helloWrap">
+        <svg class="hello-svg" id="helloSvg"
+             viewBox="0 0 1000 210"
+             preserveAspectRatio="xMidYMid meet"
+             aria-label="Hello">
+          <text class="hello-text" id="helloText"
+                x="50%" y="78%"
+                dominant-baseline="auto"
+                text-anchor="middle">HELLO</text>
+        </svg>
+      </div>
+
+      <p class="tagline" id="tagline">
+        <span class="tag-word">crafted</span>
+        <span class="tag-sep">·</span>
+        <span class="tag-word">with</span>
+        <span class="tag-sep">·</span>
+        <span class="tag-word">precision</span>
+      </p>
+    </section>
+
+    <!-- ② MARQUEE BAND ——————————————————— -->
+    <div class="marquee-band" aria-hidden="true">
+      <div class="marquee-track">
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>HELLO&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- ③ HORIZONTAL SCROLL ——————————————— -->
+    <div class="hscroll-outer" id="hscrollOuter">
+
+      <!-- UI chrome -->
+      <div class="hs-progress-bar">
+        <div class="hs-progress-fill" id="hsFill"></div>
+      </div>
+
+      <div class="hs-counter">
+        <span class="hs-cur" id="hsCur">01</span>
+        <span class="hs-slash">/</span>
+        <span class="hs-tot">03</span>
+      </div>
+
+      <div class="hs-arrow" id="hsArrow">
+        <svg width="40" height="14" viewBox="0 0 40 14" fill="none">
+          <line x1="0" y1="7" x2="36" y2="7" stroke="currentColor" stroke-width="1.2"/>
+          <polyline points="30,1 38,7 30,13" stroke="currentColor" stroke-width="1.2" fill="none"/>
+        </svg>
+        <span>drag to explore</span>
+      </div>
+
+      <!-- Track — 3 panels wide -->
+      <div class="hscroll-track" id="hscrollTrack">
+
+        <!-- Panel 1 · Hello, -->
+        <div class="hpanel" id="hpanel1">
+          <div class="hpanel-num">01</div>
+          <div class="hpanel-content">
+            <div class="hpanel-word" id="hword1">
+              <span class="hw-char">H</span><span class="hw-char">e</span><span class="hw-char">l</span><span class="hw-char">l</span><span class="hw-char">o</span><span class="hw-char hw-comma">,</span>
+            </div>
+            <p class="hpanel-sub" id="hsub1">a greeting for the world</p>
+          </div>
+          <div class="hpanel-deco hpanel-ring"></div>
+        </div>
+
+        <!-- Panel 2 · World (inverted) -->
+        <div class="hpanel hpanel-inv" id="hpanel2">
+          <div class="hpanel-num">02</div>
+          <div class="hpanel-content">
+            <div class="hpanel-word" id="hword2">
+              <span class="hw-char">W</span><span class="hw-char">o</span><span class="hw-char">r</span><span class="hw-char">l</span><span class="hw-char">d</span>
+            </div>
+            <p class="hpanel-sub" id="hsub2">every corner, every soul</p>
+          </div>
+          <div class="hpanel-deco hpanel-dots"></div>
+        </div>
+
+        <!-- Panel 3 · here! -->
+        <div class="hpanel" id="hpanel3">
+          <div class="hpanel-num">03</div>
+          <div class="hpanel-content">
+            <div class="hpanel-word hpanel-word--outline" id="hword3">
+              <span class="hw-char">h</span><span class="hw-char">e</span><span class="hw-char">r</span><span class="hw-char">e</span><span class="hw-char hw-bang">!</span>
+            </div>
+            <p class="hpanel-sub" id="hsub3">right now, right here</p>
+          </div>
+          <div class="hpanel-deco hpanel-lines"></div>
+        </div>
+
+      </div><!-- /hscroll-track -->
+    </div><!-- /hscroll-outer -->
+
+    <!-- ④ REVERSE MARQUEE ——————————————— -->
+    <div class="marquee-band marquee-band--rev" aria-hidden="true">
+      <div class="marquee-track marquee-track--rev">
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+        <span>WORLD&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- ⑤ OUTRO ——————————————————————— -->
+    <section class="outro" id="outro">
+      <div class="outro-inner">
+
+        <p class="outro-eyebrow">
+          <span class="outro-reveal-mask"><span class="outro-reveal-text">— The Full Story —</span></span>
+        </p>
+
+        <h2 class="outro-title">
+          <span class="outro-line">
+            <span class="outro-mask"><em class="outro-em">Hello,</em></span>
+          </span>
+          <span class="outro-line">
+            <span class="outro-mask">World</span>
+          </span>
+          <span class="outro-line">
+            <span class="outro-mask">here!</span>
+          </span>
+        </h2>
+
+        <div class="outro-meta">
+          <span class="outro-reveal-mask"><span class="outro-reveal-text">Scroll back to the top to begin again.</span></span>
+        </div>
+
+        <!-- Glitch line -->
+        <div class="outro-glitch-wrap" aria-hidden="true">
+          <span class="outro-glitch" data-text="HELLO WORLD HERE">HELLO WORLD HERE</span>
+        </div>
+
+      </div>
+
+      <!-- Back to top -->
+      <a href="#" class="back-top" id="backTop" data-hover>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <line x1="8" y1="14" x2="8" y2="2" stroke="currentColor" stroke-width="1.4"/>
+          <polyline points="2,8 8,2 14,8" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        </svg>
+        <span>Back to top</span>
+      </a>
+    </section>
+
+  </main><!-- /scene -->
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+  <script src="{% static 'landing/js/main.js' %}"></script>
+</body>
+</html>
