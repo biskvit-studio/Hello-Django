@@ -118,6 +118,9 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
    2. CUSTOM CURSOR
    ============================================= */
 (function initCursor() {
+  /* Skip entirely on touch/stylus devices — no mouse means no custom cursor */
+  if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
   const dot  = document.getElementById('cursorDot');
   const ring = document.getElementById('cursorRing');
 

@@ -31,6 +31,12 @@ body {
   cursor: none;
 }
 
+/* Restore default cursor and hide custom elements on touch/pointer-coarse devices */
+@media (hover: none), (pointer: coarse) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none !important; }
+}
+
 a { color: inherit; text-decoration: none; }
 
 /* =============================================
