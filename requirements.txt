@@ -2,3 +2,5 @@ Django==4.2.26
 asgiref==3.11.0
 sqlparse==0.5.3
 tzdata==2025.2
+gunicorn==25.3.0
+whitenoise==6.12.0
