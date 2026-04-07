@@ -681,6 +681,12 @@ body.panel-inv .cursor-ring { border-color: rgba(0,0,0,0.5); }
   .hpanel-ring { display: none; }
   .outro { padding: 5rem 5vw 4rem; }
   .hs-arrow { display: none; }
+  .hero-model {
+    top: 54%;
+    width: min(95vw, 450px);
+    height: min(95vw, 450px);
+    opacity: 0.45;
+  }
 }
 
 @media (max-width: 980px) {

@@ -17,8 +17,9 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
   if (!gl) return;
 
   function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const pr = window.innerWidth < 768 ? 0.6 : 1;
+    canvas.width  = Math.floor(window.innerWidth * pr);
+    canvas.height = Math.floor(window.innerHeight * pr);
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
   resize();
@@ -134,18 +135,56 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
     antialias: true,
     alpha: true
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.2 : 1.8));
+
+  const globeGroup = new THREE.Group();
+  globeGroup.position.x = 0.15;
+  scene.add(globeGroup);
 
   const globeGeometry = new THREE.SphereGeometry(1.38, 48, 48);
   const globeWireMaterial = new THREE.MeshBasicMaterial({
     color: 0xd8d8d8,
     wireframe: true,
     transparent: true,
-    opacity: 0.46
+    opacity: 0.12
   });
-  const globe = new THREE.Mesh(globeGeometry, globeWireMaterial);
-  globe.position.x = 0.15;
-  scene.add(globe);
+  const globeMesh = new THREE.Mesh(globeGeometry, globeWireMaterial);
+  globeGroup.add(globeMesh);
+
+  fetch('/static/landing/js/countries.geojson')
+    .then(r => r.json())
+    .then(data => {
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+      const radius = 1.384; 
+      const allSegmentPoints = [];
+      data.features.forEach(feature => {
+        const geom = feature.geometry;
+        if (!geom) return;
+        if (geom.type === 'Polygon') {
+          geom.coordinates.forEach(ring => addRing(ring));
+        } else if (geom.type === 'MultiPolygon') {
+          geom.coordinates.forEach(poly => poly.forEach(ring => addRing(ring)));
+        }
+      });
+      function addRing(ring) {
+        const points = [];
+        ring.forEach(coord => {
+          const lon = coord[0];
+          const lat = coord[1];
+          const phi = (90 - lat) * (Math.PI / 180);
+          const theta = (lon + 180) * (Math.PI / 180);
+          const x = -(radius * Math.sin(phi) * Math.cos(theta));
+          const z = (radius * Math.sin(phi) * Math.sin(theta));
+          const y = (radius * Math.cos(phi));
+          points.push(new THREE.Vector3(x, y, z));
+        });
+        for (let i = 0; i < points.length - 1; i++) {
+          allSegmentPoints.push(points[i], points[i + 1]);
+        }
+      }
+      const geom = new THREE.BufferGeometry().setFromPoints(allSegmentPoints);
+      globeGroup.add(new THREE.LineSegments(geom, lineMat));
+    }).catch(err => console.error('Map load error:', err));
 
   const glowGeometry = new THREE.SphereGeometry(1.42, 32, 32);
   const glowMaterial = new THREE.MeshStandardMaterial({
@@ -188,9 +227,12 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
   scene.add(ambient);
 
   const mouse = { x: 0, y: 0 };
+  const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   window.addEventListener('mousemove', e => {
-    mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    if (!isTouch) {
+      mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    }
   });
 
   function resize() {
@@ -207,12 +249,15 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
   let rafId = null;
   function render(time) {
     const t = time * 0.001;
-    globe.rotation.y = t * 0.22 + mouse.x * 0.18;
-    globe.rotation.x = mouse.y * 0.08;
-    globe.rotation.z = Math.sin(t * 0.3) * 0.08;
-    glow.rotation.y = globe.rotation.y;
-    glow.rotation.x = globe.rotation.x;
-    glow.rotation.z = globe.rotation.z;
+    const currentMouseY = isTouch ? Math.sin(t * 1.5) * 0.4 : mouse.y;
+    const currentMouseX = isTouch ? Math.cos(t * 1.2) * 0.4 : mouse.x;
+
+    globeGroup.rotation.y = t * 0.22 + currentMouseX * 0.18;
+    globeGroup.rotation.x = currentMouseY * 0.08;
+    globeGroup.rotation.z = Math.sin(t * 0.3) * 0.08;
+    glow.rotation.y = globeGroup.rotation.y;
+    glow.rotation.x = globeGroup.rotation.x;
+    glow.rotation.z = globeGroup.rotation.z;
     ringA.rotation.z = t * 0.16;
     ringB.rotation.z = -t * 0.12;
     renderer.render(scene, camera);
