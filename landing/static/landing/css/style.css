@@ -210,10 +210,31 @@ body.panel-inv .cursor-ring { border-color: rgba(0,0,0,0.5); }
   overflow: hidden;
 }
 
+.hero-model {
+  position: absolute;
+  right: 3vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(34vw, 500px);
+  height: min(62vh, 560px);
+  opacity: 0.5;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.06));
+}
+
+#heroModelCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .hello-wrap {
   width: 100%;
   transform-style: preserve-3d;
   will-change: transform;
+  position: relative;
+  z-index: 2;
 }
 
 .hello-svg {
@@ -243,6 +264,8 @@ body.panel-inv .cursor-ring { border-color: rgba(0,0,0,0.5); }
   display: flex;
   align-items: center;
   gap: 0.5em;
+  position: relative;
+  z-index: 2;
 }
 
 .tag-word, .tag-sep {
@@ -658,4 +681,8 @@ body.panel-inv .cursor-ring { border-color: rgba(0,0,0,0.5); }
   .hpanel-ring { display: none; }
   .outro { padding: 5rem 5vw 4rem; }
   .hs-arrow { display: none; }
+}
+
+@media (max-width: 980px) {
+  .hero-model { display: none; }
 }

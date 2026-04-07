@@ -40,6 +40,10 @@
 
     <!-- ① HERO ————————————————————————— -->
     <section class="hero" id="hero">
+      <div class="hero-model" id="heroModel" aria-hidden="true">
+        <canvas id="heroModelCanvas"></canvas>
+      </div>
+
       <div class="hello-wrap" id="helloWrap">
         <svg class="hello-svg" id="helloSvg"
              viewBox="0 0 1000 210"
@@ -204,6 +208,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
   <script src="{% static 'landing/js/main.js' %}"></script>
 </body>
 </html>

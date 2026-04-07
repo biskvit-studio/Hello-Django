@@ -115,7 +115,101 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
 
 /* =============================================
-   2. CUSTOM CURSOR
+   2. HERO 3D MODEL (Three.js)
+   ============================================= */
+(function initHeroModel() {
+  if (typeof THREE === 'undefined') return;
+  if (window.matchMedia('(max-width: 980px)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const canvas = document.getElementById('heroModelCanvas');
+  const wrap = document.getElementById('heroModel');
+  if (!canvas || !wrap) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 5.6);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+
+  const knotGeometry = new THREE.TorusKnotGeometry(1.1, 0.24, 220, 24);
+  const knotMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.35,
+    metalness: 0.7
+  });
+  const knot = new THREE.Mesh(knotGeometry, knotMaterial);
+  scene.add(knot);
+
+  const wireGeometry = new THREE.TorusKnotGeometry(1.13, 0.245, 170, 18);
+  const wireMaterial = new THREE.MeshBasicMaterial({
+    color: 0x6f6f6f,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.2
+  });
+  const wire = new THREE.Mesh(wireGeometry, wireMaterial);
+  scene.add(wire);
+
+  const lightA = new THREE.DirectionalLight(0xffffff, 1.2);
+  lightA.position.set(2.5, 2, 3);
+  scene.add(lightA);
+
+  const lightB = new THREE.DirectionalLight(0x8c8c8c, 0.45);
+  lightB.position.set(-2, -1, 1.5);
+  scene.add(lightB);
+
+  const ambient = new THREE.AmbientLight(0x505050, 0.5);
+  scene.add(ambient);
+
+  const mouse = { x: 0, y: 0 };
+  window.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  function resize() {
+    const rect = wrap.getBoundingClientRect();
+    const w = Math.max(120, rect.width);
+    const h = Math.max(120, rect.height);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let rafId = null;
+  function render(time) {
+    const t = time * 0.001;
+    knot.rotation.x = t * 0.23 + mouse.y * 0.16;
+    knot.rotation.y = t * 0.31 + mouse.x * 0.22;
+    wire.rotation.x = -t * 0.16;
+    wire.rotation.y = t * 0.2;
+    wire.rotation.z = t * 0.12;
+    renderer.render(scene, camera);
+    rafId = requestAnimationFrame(render);
+  }
+  rafId = requestAnimationFrame(render);
+
+  window.addEventListener('beforeunload', () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    knotGeometry.dispose();
+    wireGeometry.dispose();
+    knotMaterial.dispose();
+    wireMaterial.dispose();
+    renderer.dispose();
+  });
+}());
+
+
+/* =============================================
+   3. CUSTOM CURSOR
    ============================================= */
 (function initCursor() {
   /* Skip entirely on touch/stylus devices — no mouse means no custom cursor */
@@ -150,7 +244,7 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
 
 /* =============================================
-   3. LOADER
+   4. LOADER
    ============================================= */
 (function initLoader() {
   const loader    = document.getElementById('loader');
@@ -247,7 +341,7 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
 
 /* =============================================
-   4. MOUSE PARALLAX (hero)
+   5. MOUSE PARALLAX (hero)
    ============================================= */
 (function initParallax() {
   const wrap = document.getElementById('helloWrap');
@@ -273,7 +367,7 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
 
 /* =============================================
-   5. HORIZONTAL SCROLL
+   6. HORIZONTAL SCROLL
    ============================================= */
 function initHorizontalScroll() {
   const outer  = document.getElementById('hscrollOuter');
@@ -384,7 +478,7 @@ function initHorizontalScroll() {
 
 
 /* =============================================
-   6. OUTRO
+   7. OUTRO
    ============================================= */
 function initOutro() {
   const masks    = document.querySelectorAll('.outro-mask');
