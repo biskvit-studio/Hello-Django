@@ -24,7 +24,11 @@ SECRET_KEY = os.environ.get(
     'django-insecure-y)*)n84)1hba5=cja4=#$*8oz*z_ze%o#1=qv(-*e+7@s#1zxs'
 )
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+def env_bool(name: str, default: bool) -> bool:
+    return os.environ.get(name, str(default)).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+DEBUG = env_bool('DEBUG', True)
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
@@ -122,7 +126,10 @@ STATIC_URL = 'static/'
 
 # Collected static files go here during build (used by whitenoise in production)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Keep local development simple (runserver serves app static files directly).
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

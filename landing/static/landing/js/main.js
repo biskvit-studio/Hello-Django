@@ -115,11 +115,10 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
 
 /* =============================================
-   2. HERO 3D MODEL (Three.js)
+   2. HERO 3D GLOBE (Three.js)
    ============================================= */
 (function initHeroModel() {
   if (typeof THREE === 'undefined') return;
-  if (window.matchMedia('(max-width: 980px)').matches) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const canvas = document.getElementById('heroModelCanvas');
@@ -137,24 +136,45 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
 
-  const knotGeometry = new THREE.TorusKnotGeometry(1.1, 0.24, 220, 24);
-  const knotMaterial = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.35,
-    metalness: 0.7
-  });
-  const knot = new THREE.Mesh(knotGeometry, knotMaterial);
-  scene.add(knot);
-
-  const wireGeometry = new THREE.TorusKnotGeometry(1.13, 0.245, 170, 18);
-  const wireMaterial = new THREE.MeshBasicMaterial({
-    color: 0x6f6f6f,
+  const globeGeometry = new THREE.SphereGeometry(1.38, 48, 48);
+  const globeWireMaterial = new THREE.MeshBasicMaterial({
+    color: 0xd8d8d8,
     wireframe: true,
     transparent: true,
-    opacity: 0.2
+    opacity: 0.46
   });
-  const wire = new THREE.Mesh(wireGeometry, wireMaterial);
-  scene.add(wire);
+  const globe = new THREE.Mesh(globeGeometry, globeWireMaterial);
+  globe.position.x = 0.15;
+  scene.add(globe);
+
+  const glowGeometry = new THREE.SphereGeometry(1.42, 32, 32);
+  const glowMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.05,
+    roughness: 0.8,
+    metalness: 0.1
+  });
+  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+  glow.position.x = 0.15;
+  scene.add(glow);
+
+  const ringGeometry = new THREE.TorusGeometry(1.8, 0.012, 16, 120);
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: 0x777777,
+    transparent: true,
+    opacity: 0.28
+  });
+  const ringA = new THREE.Mesh(ringGeometry, ringMaterial);
+  ringA.rotation.x = Math.PI * 0.44;
+  ringA.rotation.y = Math.PI * 0.15;
+  scene.add(ringA);
+
+  const ringB = new THREE.Mesh(ringGeometry, ringMaterial.clone());
+  ringB.material.opacity = 0.16;
+  ringB.rotation.x = -Math.PI * 0.38;
+  ringB.rotation.y = -Math.PI * 0.26;
+  scene.add(ringB);
 
   const lightA = new THREE.DirectionalLight(0xffffff, 1.2);
   lightA.position.set(2.5, 2, 3);
@@ -187,11 +207,14 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
   let rafId = null;
   function render(time) {
     const t = time * 0.001;
-    knot.rotation.x = t * 0.23 + mouse.y * 0.16;
-    knot.rotation.y = t * 0.31 + mouse.x * 0.22;
-    wire.rotation.x = -t * 0.16;
-    wire.rotation.y = t * 0.2;
-    wire.rotation.z = t * 0.12;
+    globe.rotation.y = t * 0.22 + mouse.x * 0.18;
+    globe.rotation.x = mouse.y * 0.08;
+    globe.rotation.z = Math.sin(t * 0.3) * 0.08;
+    glow.rotation.y = globe.rotation.y;
+    glow.rotation.x = globe.rotation.x;
+    glow.rotation.z = globe.rotation.z;
+    ringA.rotation.z = t * 0.16;
+    ringB.rotation.z = -t * 0.12;
     renderer.render(scene, camera);
     rafId = requestAnimationFrame(render);
   }
@@ -199,10 +222,13 @@ CustomEase.create('heavy', 'M0,0 C0.12,0 0,1 1,1');
 
   window.addEventListener('beforeunload', () => {
     if (rafId) cancelAnimationFrame(rafId);
-    knotGeometry.dispose();
-    wireGeometry.dispose();
-    knotMaterial.dispose();
-    wireMaterial.dispose();
+    globeGeometry.dispose();
+    glowGeometry.dispose();
+    ringGeometry.dispose();
+    globeWireMaterial.dispose();
+    glowMaterial.dispose();
+    ringMaterial.dispose();
+    ringB.material.dispose();
     renderer.dispose();
   });
 }());
